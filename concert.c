@@ -26,4 +26,17 @@ sem_t filledL;              //sellers L wait on this
  
 time_t startTime;
 
-made
+int n;
+
+int main(int argc, char *argv[]) {
+    
+    //Check for only one command-line argument
+    if (argc != 2) { printf("Usage: requires 1 integer argument\n"); }
+    else { 
+        n = atoi(argv[1]); 
+        printf("%d\n", n);
+    }
+    
+    
+    return 0;
+}
