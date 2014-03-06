@@ -17,9 +17,13 @@
 #define MAX_WAITING_DURATION 10     //If person waits for 10 mins leaves.
 #define SELLING_DURATION 60     //Sell tickets for 60 mins
 
+typedef enum { false, true } bool;
+
 char seats[SEAT_ROWS][SEAT_COLUMNS]; //Matrix of the auditorium
 
-pthread_mutex_t seatMutex;  //mutex protects the seats a (shared resource)
+pthread_mutex_t seatMutex;  // mutex protects the seats 
+pthread_mutex_t printMutex; // mutext protects printing
+
 sem_t filledH;              //seller H waits on this
 sem_t filledM;              //sellers M wait on this
 sem_t filledL;              //sellers L wait on this
@@ -29,8 +33,22 @@ struct itimerval MsellersTimer;
 struct itimerval LsellersTimer;
 time_t startTime;
 
+int arrivalCount = 0;
+int waitOnH = 0;
+bool timesUp = false;
+
+
+
 void hSellsTickets() {
     char event[80];
+    
+}
+
+void mSellsTickets() {
+
+}
+
+void lSellsTickets() {
     
 }
 
@@ -40,15 +58,18 @@ void customerArrivesAtH(int id) {
     
     if (waitOnH < H_SELLERS) {
         //acquire the mutex lock to protect the seats
-        pthread_mutex_lock($seatMutex);
+        pthread_mutex_lock(&seatMutex);
         
-        //
+        // sell the ticket to the customer
+        
     }
 }
 
+
+// High price ticket seller thread
 void *hSeller(void *param) {
     time(&startTime);
-    print("H ticket seller opens");
+    printf("H ticket seller opens\n");
     
     //Set timer for ticket selling duration
     HsellersTimer.it_value.tv_sec = SELLING_DURATION;
@@ -59,14 +80,14 @@ void *hSeller(void *param) {
         hSellsTickets();
     } while (!timesUp);
     
-    print("H ticket seller closes");
+    printf("H ticket seller closes\n");
     
     return NULL;
 }
 
 void *mSeller(void *param) {
     time(&startTime);
-    print("M ticket seller opens");
+    printf("M ticket seller opens\n");
     
     //Set timer for ticket selling duration
     MsellersTimer.it_value.tv_sec = SELLING_DURATION;
@@ -77,14 +98,14 @@ void *mSeller(void *param) {
         mSellsTickets();
     } while (!timesUp);
     
-    print("M ticket seller closes");
+    printf("M ticket seller closes\n");
     
     return NULL;
 }
 
 void *lSeller(void *param) {
     time(&startTime);
-    print("M ticket seller opens");
+    printf("M ticket seller opens\n");
     
     //Set timer for ticket selling duration
     LsellersTimer.it_value.tv_sec = SELLING_DURATION;
@@ -95,10 +116,13 @@ void *lSeller(void *param) {
         lSellsTickets();
     } while (!timesUp);
     
-    print("L ticket seller closes");
+    printf("L ticket seller closes\n");
     
     return NULL;
 }
+
+
+
 
 
 int main(int argc, char *argv[]) {
@@ -108,9 +132,13 @@ int main(int argc, char *argv[]) {
     int LsellerId = 0;
     
     //Check for only one command-line argument
+
+    // Initialize mutexes and semaphore
+
+    pthread_mutex_init(&seatMutex, NULL);
     if (argc != 2) { printf("Usage: requires 1 integer argument\n"); }
-    else { 
-        n = atoi(argv[1]); 
+    else {
+        n = atoi(argv[1]);
         printf("%d\n", n);
     }
     
