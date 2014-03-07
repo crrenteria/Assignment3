@@ -23,11 +23,15 @@ typedef enum { false, true } bool;
 char seats[SEAT_ROWS][SEAT_COLUMNS]; //Matrix of the auditorium
 
 pthread_mutex_t seatMutex;  // mutex protects the seats 
+pthread_mutex_t seatMutex;  // mutex protects the seats
 pthread_mutex_t printMutex; // mutext protects printing
 
 sem_t filledH;              //seller H waits on this
 sem_t filledM;              //sellers M wait on this
 sem_t filledL;              //sellers L wait on this
+sem_t filledH;              //seller H waits on this semaphore
+sem_t filledM;              //sellers M wait on this semaphore
+sem_t filledL;              //sellers L wait on this semaphore
 
 struct itimerval HsellersTimer;
 struct itimerval MsellersTimer;
@@ -127,7 +131,27 @@ void *lSeller(void *param) {
 
 
 // Print a line for each event:
+//  elapsed time
+//  who is buying a ticket
+//  who is waiting for a ticket
 void print(char *event) {
+    time_t now;
+    time(&now);
+    double elapsed = difftime(now, startTime);
+    int min = 0;
+    int sec = (int) elapsed;
+    
+    if (sec >= 60) {
+        min++;
+        sec -= 60;
+    }
+    
+    // Acquire the mutex lock to protect the printing.
+    pthread_mutex_lock(&printMutex);
+    
+    
+    
+}
 
 
 
@@ -139,8 +163,10 @@ int main(int argc, char *argv[]) {
     
     //Check for only one command-line argument
 
+    
     // Initialize mutexes and semaphore
 
+    
     pthread_mutex_init(&seatMutex, NULL);
     if (argc != 2) { printf("Usage: requires 1 integer argument\n"); }
     else {
