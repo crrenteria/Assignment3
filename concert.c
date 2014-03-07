@@ -23,7 +23,6 @@ typedef enum { false, true } bool;
 
 char seats[SEAT_ROWS][SEAT_COLUMNS]; //Matrix of the auditorium
 
-pthread_mutex_t seatMutex;  // mutex protects the seats 
 pthread_mutex_t seatMutex;  // mutex protects the seats
 pthread_mutex_t printMutex; // mutext protects printing
 
@@ -56,7 +55,6 @@ void mSellsTickets() {
 }
 
 void lSellsTickets() {
-    
     // ticket sale time is 4, 5, 6, or 7 minutes, chosen randomly
 }
 
@@ -163,10 +161,8 @@ int main(int argc, char *argv[]) {
     int LsellerId = 0;
     
     //Check for only one command-line argument
-
     
     // Initialize mutexes and semaphore
-
     
     pthread_mutex_init(&seatMutex, NULL);
     if (argc != 2) { printf("Usage: requires 1 integer argument\n"); }
