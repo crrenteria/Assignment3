@@ -26,8 +26,6 @@ char seats[SEAT_ROWS][SEAT_COLUMNS]; //Matrix of the auditorium
 pthread_mutex_t seatMutex;  // mutex protects the seats
 pthread_mutex_t printMutex; // mutext protects printing
 
-sem_t filledH;              //seller H waits on this
-sem_t filledL;              //sellers L wait on this
 sem_t filledH;              //seller H waits on this semaphore
 sem_t filledM;              //sellers M wait on this semaphore
 sem_t filledL;              //sellers L wait on this semaphore
