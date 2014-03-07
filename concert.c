@@ -183,6 +183,20 @@ void print(char *event) {
 }
 
 
+// preliminary shell for printing the seating grid
+// need to access array of High, Med, and Low price buyers
+void printGrid() {
+    int m = 0;
+    printf("\nTicket sold.\n");
+    int j;
+    
+        printf("[");
+        for (i = 0; i < 10; i++) {
+            printf(" H%2d ", h);
+        }
+        printf("]\n");
+    }
+}
 
 int main(int argc, char *argv[]) {
     int n;
@@ -201,6 +215,20 @@ int main(int argc, char *argv[]) {
         printf("%d\n", n);
     }
     
+    //    int n;
+    //    int HsellerId = 0;
+    //    int LsellerId = 0;
+    //
+    //    //Check for only one command-line argument
+    //
+    //
+    //    pthread_mutex_init(&seatMutex, NULL);
+    //    if (argc != 2) { printf("Usage: requires 1 integer argument\n"); }
+    //    else {
+    //        n = atoi(argv[1]);
+    //        printf("%d\n", n);
+    //    }
+    printGrid();
     
     return 0;
 }
