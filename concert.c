@@ -35,8 +35,11 @@ struct itimerval MsellersTimer;
 struct itimerval LsellersTimer;
 time_t startTime;
 
+int in = 0, out = 0;
+int sellingId = 0;
 
 int arrivalCount = 0;
+int waitCount = 0;
 int waitOnH = 0;
 bool timesUp = false;
 
@@ -149,7 +152,7 @@ void print(char *event) {
     pthread_mutex_lock(&printMutex);
     
     if (firstPrint) {
-        printf("TIME | SELLING | WAITING\t| EVENT\n");
+        printf("TIME | SELLING | WAITING     | EVENT\n");
         firstPrint = false;
     }
     
@@ -157,7 +160,24 @@ void print(char *event) {
     printf("%1d:%02d | ", min, sec);
     
     // Who is buying from a seller
+    if (sellingId > 0) {
+        printf("%5d   |", sellingId);
+        printf("        |");
+    }
     
+    pthread_mutex_lock(&seatMutex);
+    
+    int i = out;
+    int j = waitCount;
+    int k = 0;
+    
+    while (j-- > 0) {
+        // need to cycle through the 2D array here
+        //code from officehour.c
+        //        printf("%4d", chairs[i]);
+        //        i = (i+1)%CHAIR_COUNT;
+        //        k++;
+    }
 }
 
 
