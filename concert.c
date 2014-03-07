@@ -15,6 +15,7 @@
 #define L_SELLERS 6
 
 #define MAX_TICKET_COUNT 100
+
 #define MAX_WAITING_DURATION 10     //If person waits for 10 mins leaves.
 #define SELLING_DURATION 60     //Sell tickets for 60 mins
 
@@ -27,7 +28,6 @@ pthread_mutex_t seatMutex;  // mutex protects the seats
 pthread_mutex_t printMutex; // mutext protects printing
 
 sem_t filledH;              //seller H waits on this
-sem_t filledM;              //sellers M wait on this
 sem_t filledL;              //sellers L wait on this
 sem_t filledH;              //seller H waits on this semaphore
 sem_t filledM;              //sellers M wait on this semaphore
@@ -37,6 +37,7 @@ struct itimerval HsellersTimer;
 struct itimerval MsellersTimer;
 struct itimerval LsellersTimer;
 time_t startTime;
+
 
 int arrivalCount = 0;
 int waitOnH = 0;
@@ -51,7 +52,6 @@ void hSellsTickets() {
 }
 
 void mSellsTickets() {
-
     // ticket sale time is 2, 3, or 4 minutes, chosen randomly
 }
 
@@ -134,6 +134,7 @@ void *lSeller(void *param) {
 //  elapsed time
 //  who is buying a ticket
 //  who is waiting for a ticket
+//  what seat was assigned
 void print(char *event) {
     time_t now;
     time(&now);
