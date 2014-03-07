@@ -40,6 +40,8 @@ int arrivalCount = 0;
 int waitOnH = 0;
 bool timesUp = false;
 
+bool firstPrint = true;
+
 
 
 void hSellsTickets() {
@@ -146,7 +148,15 @@ void print(char *event) {
     // Acquire the mutex lock to protect the printing.
     pthread_mutex_lock(&printMutex);
     
+    if (firstPrint) {
+        printf("TIME | SELLING | WAITING\t| EVENT\n");
+        firstPrint = false;
+    }
     
+    // Elapsed time
+    printf("%1d:%02d | ", min, sec);
+    
+    // Who is buying from a seller
     
 }
 
