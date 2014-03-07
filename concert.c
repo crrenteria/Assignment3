@@ -162,6 +162,8 @@ void print(char *event) {
     // Who is buying from a seller
     if (sellingId > 0) {
         printf("%5d   |", sellingId);
+    }
+    else {
         printf("        |");
     }
     
