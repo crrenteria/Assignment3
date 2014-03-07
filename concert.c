@@ -14,6 +14,7 @@
 #define M_SELLERS 3
 #define L_SELLERS 6
 
+#define MAX_TICKET_COUNT 100
 #define MAX_WAITING_DURATION 10     //If person waits for 10 mins leaves.
 #define SELLING_DURATION 60     //Sell tickets for 60 mins
 
@@ -41,15 +42,18 @@ bool timesUp = false;
 
 void hSellsTickets() {
     char event[80];
+    // ticket sale time is 1 or 2 minutes, chosen randomly
     
 }
 
 void mSellsTickets() {
 
+    // ticket sale time is 2, 3, or 4 minutes, chosen randomly
 }
 
 void lSellsTickets() {
     
+    // ticket sale time is 4, 5, 6, or 7 minutes, chosen randomly
 }
 
 void customerArrivesAtH(int id) {
@@ -122,6 +126,8 @@ void *lSeller(void *param) {
 }
 
 
+// Print a line for each event:
+void print(char *event) {
 
 
 
