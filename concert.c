@@ -185,11 +185,16 @@ void print(char *event) {
 
 // preliminary shell for printing the seating grid
 // need to access array of High, Med, and Low price buyers
+// print '___' for each unsold seat
 void printGrid() {
+    int h = 0;
     int m = 0;
+    int l = 0;
     printf("\nTicket sold.\n");
+    int i;
     int j;
     
+    for (j = 0; j < 10; j++) {
         printf("[");
         for (i = 0; i < 10; i++) {
             printf(" H%2d ", h);
