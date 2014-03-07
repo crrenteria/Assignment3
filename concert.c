@@ -204,28 +204,14 @@ void printGrid() {
 }
 
 int main(int argc, char *argv[]) {
-    int n;
-    int HsellerId = 0;
-    int MsellerId = 0;
-    int LsellerId = 0;
-    
-    //Check for only one command-line argument
-    
-    // Initialize mutexes and semaphore
-    
-    pthread_mutex_init(&seatMutex, NULL);
-    if (argc != 2) { printf("Usage: requires 1 integer argument\n"); }
-    else {
-        n = atoi(argv[1]);
-        printf("%d\n", n);
-    }
-    
     //    int n;
     //    int HsellerId = 0;
+    //    int MsellerId = 0;
     //    int LsellerId = 0;
     //
     //    //Check for only one command-line argument
     //
+    //    // Initialize mutexes and semaphore
     //
     //    pthread_mutex_init(&seatMutex, NULL);
     //    if (argc != 2) { printf("Usage: requires 1 integer argument\n"); }
