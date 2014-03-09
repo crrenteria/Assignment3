@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
-#include <time.h>
 #include <unistd.h>
+#include <time.h>
+#include <sys/time.h>
+#include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
-#include <sys/time.h>
 
 
 // function declarations.
@@ -34,7 +34,7 @@ int total_h = 0; // high
 int total_a = 0; // all
 
 int CUSTOMERS = 15; // adjustable n, set as 5, 10, 15 via command line
-int queue[10][99]; // queue of customers
+int queue[10][99]; // queue of customers. adjustable?
 
 // base IDs
 int lowNum = 30;
@@ -45,12 +45,10 @@ int closed = 0; // boolean seller closed or open
 int MINUTES = 60; // 1 second real time = 1 minute sim time (60 minutes --> 60 seconds)
 
 // threads
-pthread_mutex_t low;
-pthread_mutex_t med;
-pthread_mutex_t high;
-pthread_mutex_t printLock, customerLock;
+pthread_mutex_t low, med, high; // thread for type
+pthread_mutex_t printLock, customerLock; // thread locks
 
-struct itimerval profTimer;
+struct itimerval sellerTimer;
 time_t startTime;
 
 int lowcount[6]; // 6 sellers for L
@@ -100,8 +98,8 @@ main(int argc, char *argv[]) {
    }
    
    srand(time(NULL));
-   profTimer.it_value.tv_sec = MINUTES;
-   setitimer(ITIMER_REAL, &profTimer, NULL);
+   sellerTimer.it_value.tv_sec = MINUTES;
+   setitimer(ITIMER_REAL, &sellerTimer, NULL);
    time(&startTime);
    
    // make the ticket sellers
@@ -200,7 +198,7 @@ void lowSeller(void *ptr) {
             printf("\nTime %1d:%02d, Customer L%d%02d is now being served", min / 60, min % 60, id % 10, count + 1);
             pthread_mutex_unlock(&printLock); // unlock thread
             
-            sleep((rand() % 4) + 4); // sleeps 4-7 seconds
+            sleep((rand() % 4) + 4); // sleeps 4-7 minutes
             
             pthread_mutex_lock(&printLock); // create lock
             count++;
@@ -269,7 +267,7 @@ void medSeller(void *ptr) {
             printf("\nTime %1d:%02d, Customer M%d%02d is now being served", min / 60, min % 60, id % 20, count + 1);
             pthread_mutex_unlock(&printLock);
            
-            sleep((rand() % 3) + 2); // time taken to complete ticket sales
+            sleep((rand() % 3) + 2); // time taken to complete ticket sales; sleeps 2-4 minutes
             
             pthread_mutex_lock(&printLock);
             count++;
@@ -351,7 +349,7 @@ void hiSeller(void *ptr) {
             printf("\nTime %1d:%02d, Customer H%d%02d is now being served", min / 60, min % 60, id % 10, count + 1);
             pthread_mutex_unlock(&printLock);
             
-            sleep((rand() % 2) + 1);
+            sleep((rand() % 2) + 1); // sleeps 1-2 minutes
             
             pthread_mutex_lock(&printLock);
             count++;
