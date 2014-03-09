@@ -8,7 +8,7 @@
 #include <sys/time.h>
 
 
-//declarations.
+// function declarations.
 void print();
 void lowSeller(void *ptr);
 void medSeller(void *ptr);
@@ -21,39 +21,43 @@ int findHead(int *queue);
 int seatFinder(int row);
 int findHeadtwo(int id);
 
-int SELLERS_L = 6; // sellers low
-int SELLERS_M = 3; // sellers med
-int SELLERS_H = 1; // sellers high
-int SELLERS_A = 10; // sellers all
+// ticket sellers
+int SELLERS_L = 6; // low
+int SELLERS_M = 3; // med
+int SELLERS_H = 1; // high
+int SELLERS_A = 10; // all
 
-int CUSTOMERS = 15; // n is 5, 10, 15
-int queue[10][99]; // 0->99 = 100 seats
+// tickets sold
+int total_l = 0; // low
+int total_m = 0; // med
+int total_h = 0; // high
+int total_a = 0; // all
 
+int CUSTOMERS = 15; // adjustable n, set as 5, 10, 15 via command line
+int queue[10][99]; // queue of customers
+
+// base IDs
 int lowNum = 30;
 int medNum = 20;
 int highNum = 10;
 
-int total_l = 0; // ticket sold low
-int total_m = 0; // ticket sold med
-int total_h = 0; // ticket sold high
-int total_a = 0; // ticket sold all
-
 int closed = 0; // boolean seller closed or open
-int MINUTES = 60; // 60 minutes --> 60 seconds
+int MINUTES = 60; // 1 second real time = 1 minute sim time (60 minutes --> 60 seconds)
 
 // threads
-pthread_mutex_t printLock, customerLock;
 pthread_mutex_t low;
 pthread_mutex_t med;
 pthread_mutex_t high;
+pthread_mutex_t printLock, customerLock;
 
 struct itimerval profTimer;
 time_t startTime;
 
-int lowcount[6];
-int medcount[3];
-int hicount = 0;
+int lowcount[6]; // 6 sellers for L
+int medcount[3]; // 3 sellers for M
+int hicount = 0; // 1 seller for H, 0 tickets sold for each high ticket seller
 
+// the concert seats
 int seat[10][10] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                      { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                      { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -72,24 +76,25 @@ int i, j;
  * Creates and executes threads.
  */
 main(int argc, char *argv[]) {
-   SELLERS_A = SELLERS_L + SELLERS_M + SELLERS_H;
+   SELLERS_A = SELLERS_L + SELLERS_M + SELLERS_H; // set the total number of sellers
    
-   //make customers: id is in the form of ZXYY where Z is H/M/L and X is the seller id and YY is the customer id.
-   int customernum;
-   int sellernum;
+   // make customers: id is in form [H/M/L][seller id][customer id]
+   int customernum, sellernum;
    pthread_t customerthreads[SELLERS_A * CUSTOMERS];
    
    printf("Ticket seller opens.\n");
+   
+   // initialize at 0 customers
    for (i = 0; i < 10; i++) {
       for (j = 0; j < CUSTOMERS; j++) {
          queue[i][j] = 0;
       }
    }
    
+   // set the number of tickets sold to 0 for each seller in the L and M types
    for (i = 0; i < 6; i++) {
       lowcount[i] = 0;
    }
-   
    for (i = 0; i < 3; i++) {
       medcount[i] = 0;
    }
@@ -99,7 +104,7 @@ main(int argc, char *argv[]) {
    setitimer(ITIMER_REAL, &profTimer, NULL);
    time(&startTime);
    
-   // Make the ticket sellers
+   // make the ticket sellers
    pthread_t lthreads[SELLERS_L];
    for (i = 0; i < SELLERS_L; i++) {
       pthread_create(&lthreads[i], NULL, lowSeller, NULL);
@@ -114,6 +119,7 @@ main(int argc, char *argv[]) {
    }
    
    int arraycount = 0;
+   
    // make customers
    for (sellernum = 0; sellernum < SELLERS_L * 100; sellernum += 100) { // 3 digit number
       for (customernum = 101; customernum <= 100 + CUSTOMERS; customernum++) {
@@ -150,17 +156,20 @@ main(int argc, char *argv[]) {
       pthread_join(hthreads[i], NULL);
    }
    
-   total_a = total_h + total_m + total_l;
+   total_a = total_h + total_m + total_l; // set total customers who got seats
    
    printf("\n\n");
-   printf("Total Customers rejected:        %d\n", ((SELLERS_A * CUSTOMERS) - total_a)); // print out how many customers left without seats
-   printf("Total H Customers who got seats: %d\n", total_h); // how many H customers got their seat
+   printf("Total L Customers who got seats: %d\n", total_l); // number L customers who got a seat
    printf("Total M Customers who got seats: %d\n", total_m);
-   printf("Total L Customers who got seats: %d\n", total_l);
+   printf("Total H Customers who got seats: %d\n", total_h);
+   printf("Total Customers turned away:     %d\n", ((SELLERS_A * CUSTOMERS) - total_a)); // print out how many customers left without seats
    
    exit(0);
 }
 
+/**
+  * Function for low ticket seller.
+  */
 void lowSeller(void *ptr) {
    pthread_mutex_lock(&low); // lock while seller creates an ID
    int id = lowNum + 1;
@@ -172,7 +181,7 @@ void lowSeller(void *ptr) {
    int i, col;
    
    while (!closed) { // run while 60 sec havent passed yet
-      if(current == -2) { // finds the first customer that arrived
+      if(current == -2) { // find the first customer that arrived
          current = findHeadtwo(id);
       }
       else if(current == -1) {  // if -1, all customers have arrived and served (thread can finish running)
@@ -227,6 +236,9 @@ void lowSeller(void *ptr) {
    }
 }
 
+/**
+  * Function for med ticket seller.
+  */
 void medSeller(void *ptr) {
    pthread_mutex_lock(&med);
    int id = medNum + 1;
@@ -306,6 +318,9 @@ void medSeller(void *ptr) {
    }
 }
 
+/**
+  * Function for high ticket seller.
+  */
 void hiSeller(void *ptr) {
    pthread_mutex_lock(&high);
    int id = highNum;
@@ -340,6 +355,7 @@ void hiSeller(void *ptr) {
             
             pthread_mutex_lock(&printLock);
             count++;
+			
             for (i = 0; i < 10; i++) {
                col = seatFinder(i);
                if (col != -1) {
@@ -370,6 +386,9 @@ void hiSeller(void *ptr) {
    }
 }
 
+/**
+  * Function to find available seats.
+  */
 int seatFinder(int row) { // find available seats in the given row and return its column index. return -1 if not found
    for(int i = 0; i < 10; i++) {
       if (seat[i][row] == 0) {
@@ -379,21 +398,21 @@ int seatFinder(int row) { // find available seats in the given row and return it
    return -1;
 }
 
-// Timer signal handler.
+/**
+  * Timer signal handler.
+  */
 void timerHandler(int signal) {
-	closed = 1;  // office hour is over
+	closed = 1;  // ticket seller is over
 }
 
 /*
- * customer function.
- * RECEIVES: pointer to character that indicates the type of customer,
- * whether H, M, or L.
+ * Function for customer.
+ * Takes pointer to character that is type of customer (L, M, H).
  */
 void customer(void *ptr) {
-   //get customer id
-   int id = (int) ptr;
-   int arrival = (rand()%MINUTES);//generate a random arrival time
-   sleep(arrival); //sleeps the amount of arrival time
+   int id = (int) ptr; // get customer id
+   int arrival = (rand() % MINUTES); // generate random arrival time
+   sleep(arrival); // sleeps for the amount of arrival time
    
    if (id / 1000 == 3) { // check if the customer is low
       pthread_mutex_lock(&low);
@@ -407,7 +426,7 @@ void customer(void *ptr) {
       pthread_mutex_unlock(&printLock);
       pthread_mutex_unlock(&low);
    }
-   else if (id / 1000 == 2) { //check if the customer is med
+   else if (id / 1000 == 2) { // check if the customer is med
       pthread_mutex_lock(&med);
       queue[SELLERS_H + ((id / 100) % 20) - 1][medcount[(id / 100) % 20]] = arrival;
       medcount[(id / 100) % 20]++;
@@ -419,7 +438,7 @@ void customer(void *ptr) {
       pthread_mutex_unlock(&printLock);
       pthread_mutex_unlock(&med);
 	}
-   else { //check if the customer is hi
+   else { // check if the customer is high
       pthread_mutex_lock(&high);
       queue[((id / 100) % 10)][hicount] = arrival;
       hicount++;
@@ -437,11 +456,12 @@ int findHeadtwo(int id) {
    int head = -1;
    int min = 999;
    
-   if (id / 10 == 3){ // check which seller requested, lowseller
+   // check which seller requested
+   if (id / 10 == 3){ // lowseller
       for (int i = 0; i < CUSTOMERS; i++) {
-         if (min > queue[SELLERS_H + SELLERS_M + (id % 30) - 1][i] && queue[SELLERS_H + SELLERS_M + (id % 30) - 1][i] <= 60) { // check the queue if the value is less than current min and less than 60sec
+         if (min > queue[SELLERS_H + SELLERS_M + (id % 30) - 1][i] && queue[SELLERS_H + SELLERS_M + (id % 30) - 1][i] <= 60) { // check queue to see if value < current min and < 60 sec
             if (queue[SELLERS_H + SELLERS_M + (id % 30) - 1][i] == 0 && (head == -1 || head == -2)) {
-               head = -2; // check that the location in the queue is not equals 0 since arrival time will never be 0, if equals 0 it means that there are still customes that havent arrived
+               head = -2; // check that location in queue != 0 (arrival time is never 0). if = 0, there are customers that havent arrived
             }
             else if (queue[SELLERS_H + SELLERS_M + (id % 30) - 1][i] != 0) {
                min = queue[SELLERS_H + SELLERS_M + (id % 30) - 1][i];
@@ -451,14 +471,13 @@ int findHeadtwo(int id) {
       }
       return head;
    }
-	
-   if (id / 10 == 2) { // check which seller requested, medseller
+   else if (id / 10 == 2) { // medseller
       for (int i = 0; i < CUSTOMERS; i++) {
          if (min > queue[SELLERS_H + (id % 20) - 1][i] && queue[SELLERS_H + (id % 20) - 1][i] <= 60) {
             if (queue[SELLERS_H + (id % 20) - 1][i] == 0 && (head == -1 || head == -2)) {
                head = -2;
             }
-            else if(queue[SELLERS_H+(id%20)-1][i] != 0){
+            else if(queue[SELLERS_H+(id%20)-1][i] != 0) {
                min = queue[SELLERS_H+(id%20)-1][i];
                head = i;
             }
@@ -466,13 +485,13 @@ int findHeadtwo(int id) {
       }
       return head;
    }
-   else { // check which seller requested, hiseller
+   else { // hiseller
       for (int i = 0; i < CUSTOMERS; i++) {
          if (min > queue[(id % 10)][i] && queue[(id % 10)][i] <= 60) {
             if(queue[(id % 10)][i] == 0 && (head == -1 || head == -2)) {
                head = -2;
             }
-            else if(queue[(id % 10)][i] != 0){
+            else if(queue[(id % 10)][i] != 0) {
                min = queue[(id % 10)][i];
                head = i;
             }
@@ -484,6 +503,10 @@ int findHeadtwo(int id) {
 }
 
 
+/**
+  * Print the concert seating chart in form of 10x10 matrix
+  * H###, M###, L###, or ---- for unsold seats.
+  */
 void print() {
    time_t now;
    time(&now);
@@ -491,14 +514,16 @@ void print() {
    int min = (int) difftime(now, startTime);
    int hour = 0;
 	
-   while (min >= 60) {
+   while (min >= 60) { // 60 mins passed, reset mins and increment hours for output
       min -= 60;
       hour++;
    }
    
+   // display timestamp and matrix
    printf("\n\n============================================================================\n");
    printf("Info\n");
    printf("Time: %1d:%02d\n", hour, min);
+   
    for (int j = 0; j < 10; j++) {
       printf("\n");
       for (int i = 0; i < 10; i++) {
@@ -514,9 +539,10 @@ void print() {
             printf("H%03d \t", id - 1000);
          }
          else {
-            printf("____\t");
+            printf("----\t"); // unsold seats
          }
       }
    }
+   
    printf("\n============================================================================\n");
 }
